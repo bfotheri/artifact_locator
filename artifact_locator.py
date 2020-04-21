@@ -10,6 +10,7 @@ import tf
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from geometry_msgs.msg import Point, Pose, TransformStamped
+from nav_msgs.msg import Odometry
 
 
 class ArtifactLocator:
@@ -28,7 +29,7 @@ class ArtifactLocator:
       rospy.loginfo(self.agentName + " " + self.worldName + " " + str(self.dist_threshold))
 
       self.close_artifact_pub = rospy.Publisher('found_artifacts', MarkerArray, queue_size=1)
-      self.robot_pose_sub = rospy.Subscriber(self.agentName + '/pose', TransformStamped, self.robot_pose_callback)
+      self.robot_pose_sub = rospy.Subscriber(self.agentName + '/odom', Odometry, self.robot_pose_callback)
       self.populate_artifact_dictionary()   
 
    def populate_artifact_dictionary(self):
@@ -60,9 +61,9 @@ class ArtifactLocator:
       return close_artifacts
 
    def robot_pose_callback(self, msg):
-      self.curr_robot_pos[0] = msg.transform.translation.x
-      self.curr_robot_pos[1] = msg.transform.translation.y
-      self.curr_robot_pos[2] = msg.transform.translation.z
+      self.curr_robot_pos[0] = msg.pose.pose.position.x
+      self.curr_robot_pos[1] = msg.pose.pose.position.y
+      self.curr_robot_pos[2] = msg.pose.pose.position.z
       return 
 
    def publish_artifact_markers(self, close_artifacts):
